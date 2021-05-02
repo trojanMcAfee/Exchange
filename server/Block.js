@@ -1,14 +1,21 @@
 import SHA256 from 'crypto-js/sha256';
 
 class Block {
-    constructor(from, to, amount) {
-        this.from = from;
-        this.to = to;
-        this.amount = amount;
+    constructor() {
+        this.transactions = [];
+        this.limit = 3;
+    }
+
+    isFull() {
+        return this.transactions.length < this.limit ? false: true;
+    }
+
+    addTransaction(hashedTx) {
+        this.transactions.push(hashedTx.toString());
     }
 
     toHash() {
-        return SHA256(this);
+        return SHA256(this).toString();
     }
 }
 

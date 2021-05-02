@@ -1,10 +1,15 @@
 import "./index.scss";
+import Block from '../server/Block';
+import Blockchain from '../server/Blockchain';
+
 const EC = require('elliptic').ec;
 const SHA256 = require('crypto-js/sha256');
 
 const ec = new EC('secp256k1');
 
 const server = "http://localhost:3042";
+
+const blockchain = new Blockchain();
 
 //Sign a transaction
 function signTx(privateKey, hashedTx) {
@@ -24,6 +29,17 @@ function verifyTx(hashedTx, signature, sender) {
   return key.verify(hashedTx.toString(), signature);
 }
 
+//Adds to chain
+function addBlockToChain(lastBlock, hashedTx) {
+  if (lastBlock.isFull()) {
+    const block = new Block();
+    block.addTransaction(hashedTx);
+    blockchain.addBlock(block);
+  } else {
+    lastBlock.addTransaction(hashedTx);
+  }
+}
+
 
 document.getElementById("exchange-address").addEventListener('input', ({ target: {value} }) => {
   if(value === "") {
@@ -39,6 +55,7 @@ document.getElementById("exchange-address").addEventListener('input', ({ target:
 });
 
 
+
 document.getElementById("transfer-amount").addEventListener('click', () => {
   const privateKey = prompt('Sign the transaction using your Private Key');
 
@@ -48,11 +65,16 @@ document.getElementById("transfer-amount").addEventListener('click', () => {
 
   //Hash tx
   const transaction = {
-    sender,
+    from: sender,
     amount,
-    recipient
+    to: recipient
   };
   const hashedTx = SHA256(transaction);
+
+  //Adds to blockchain
+  const lastBlock = blockchain.chain[blockchain.chain.length - 1];
+  addBlockToChain(lastBlock, hashedTx);
+  
 
   //Sign tx
   const signature = signTx(privateKey, hashedTx);
@@ -75,4 +97,8 @@ document.getElementById("transfer-amount").addEventListener('click', () => {
   }).then(({ balance }) => {
     document.getElementById("balance").innerHTML = balance;
   });
+  
+  alert('Transaction successful!');
+  blockchain.isValid() ? console.log('valid chain') : console.log('invalid chain');
+  console.log(blockchain);
 });

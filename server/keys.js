@@ -32,10 +32,7 @@ function convertToAddress() {
     console.log('binaryAddress: ', binaryAddress);
 }
 
-// const message = 'test message';
-// const msgHash = CryptoJS.SHA256(message).toString();
-// const signature = key.sign(msgHash);
-// console.log(key.verify(msgHash, signature));
+
 
 module.exports.keys = keys;
 
