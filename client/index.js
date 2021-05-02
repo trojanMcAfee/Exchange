@@ -70,12 +70,7 @@ document.getElementById("transfer-amount").addEventListener('click', () => {
     to: recipient
   };
   const hashedTx = SHA256(transaction);
-
-  //Adds to blockchain
-  const lastBlock = blockchain.chain[blockchain.chain.length - 1];
-  addBlockToChain(lastBlock, hashedTx);
   
-
   //Sign tx
   const signature = signTx(privateKey, hashedTx);
 
@@ -84,6 +79,10 @@ document.getElementById("transfer-amount").addEventListener('click', () => {
     alert("You're not authorized to make this transaction");
     return;
   }
+
+  //Adds to blockchain
+  const lastBlock = blockchain.chain[blockchain.chain.length - 1];
+  addBlockToChain(lastBlock, hashedTx);
 
   const body = JSON.stringify({
     sender, amount, recipient
