@@ -10,7 +10,8 @@ for (let i = 0; i < 3; i++) {
     key = ec.genKeyPair();
     let objKeys = {
         privateKey: key.getPrivate().toString(16),
-        publicKey: key.getPublic().x.toString(16)
+        publicKey: key.getPublic().x.toString(16),
+        // publicKey: key.getPublic().encode('hex')
     };
     keys.push(objKeys);
 }
