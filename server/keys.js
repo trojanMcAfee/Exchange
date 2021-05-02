@@ -3,12 +3,17 @@ const CryptoJS = require('crypto-js');
 
 const ec = new EC('secp256k1');
 
-const key = ec.genKeyPair();
+const keys = [];
+let key;
+for (let i = 0; i < 3; i++) {
+    key = ec.genKeyPair();
+    let objKeys = {
+        privateKey: key.getPrivate().toString(16),
+        publicKey: key.getPublic().encode('hex')
+    };
+    keys.push(objKeys);
+}
 
-const keys = {
-    privateKey: key.getPrivate().toString(16),
-    publicKey: key.getPublic().encode('hex')
-};
 
 function convertToAddress() {
     const firstSHA = CryptoJS.SHA256(keys.publicKey).toString();
@@ -27,10 +32,10 @@ function convertToAddress() {
     console.log('binaryAddress: ', binaryAddress);
 }
 
-const message = 'test message';
-const msgHash = CryptoJS.SHA256(message).toString();
-const signature = key.sign(msgHash);
-console.log(key.verify(msgHash, signature));
+// const message = 'test message';
+// const msgHash = CryptoJS.SHA256(message).toString();
+// const signature = key.sign(msgHash);
+// console.log(key.verify(msgHash, signature));
 
 module.exports.keys = keys;
 

@@ -10,12 +10,16 @@ app.use(express.json());
 
 const { keys } = require('./keys');
 
-const balances = {
-  "1": 100,
-  "2": 50,
-  "3": 75,
-}
+//Set up initial addresses with their balances
+const publicKeys = [];
+keys.forEach(key => publicKeys.push(key.publicKey));
 
+const balances = {};
+const initialBalances = [100, 50, 75];
+
+initialBalances.forEach((balance, i) => balances[publicKeys[i]] = balance);
+
+//Routes
 app.get('/balance/:address', (req, res) => {
   const {address} = req.params;
   const balance = balances[address] || 0;
@@ -32,4 +36,5 @@ app.post('/send', (req, res) => {
 app.listen(port, () => {
   console.log(`Listening on port ${port}!`);
   console.log(keys);
+  console.log('The balances: ', balances);
 });
