@@ -3,6 +3,7 @@ import "./index.scss";
 const server = "http://localhost:3042";
 
 document.getElementById("exchange-address").addEventListener('input', ({ target: {value} }) => {
+  const signature = prompt('Sign this action with your Private Key to prove that you are the owner of the address')
   if(value === "") {
     document.getElementById("balance").innerHTML = 0;
     return;

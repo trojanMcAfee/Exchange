@@ -8,6 +8,8 @@ const port = 3042;
 app.use(cors());
 app.use(express.json());
 
+const { keys } = require('./keys');
+
 const balances = {
   "1": 100,
   "2": 50,
@@ -29,4 +31,5 @@ app.post('/send', (req, res) => {
 
 app.listen(port, () => {
   console.log(`Listening on port ${port}!`);
+  console.log(keys);
 });
