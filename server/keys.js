@@ -1,5 +1,6 @@
 const EC = require('elliptic').ec;
 const CryptoJS = require('crypto-js');
+const bs58 = require('bs58');
 
 const ec = new EC('secp256k1');
 
@@ -9,28 +10,38 @@ for (let i = 0; i < 3; i++) {
     key = ec.genKeyPair();
     let objKeys = {
         privateKey: key.getPrivate().toString(16),
-        publicKey: key.getPublic().encode('hex')
+        publicKey: key.getPublic().x.toString(16)
     };
     keys.push(objKeys);
 }
 
 
-function convertToAddress() {
-    const firstSHA = CryptoJS.SHA256(keys.publicKey).toString();
-    console.log('firstSha: ', firstSHA);
+function getAddress(publicKey) {
+
+    const y = publicKey.charAt(1);
+    let publicX;
+    if (y % 2 === 0 || y == 'a' || y == 'c' || y == 'e') {
+        publicX = '02' + publicKey;
+    } else {
+        publicX = '03' + publicKey
+    }
+
+    const firstSHA = CryptoJS.SHA256(publicX);
     const ripemd = CryptoJS.RIPEMD160(firstSHA).toString();
-    console.log('ripemd: ', ripemd);
     const networkBytes = '00' + ripemd;
-    console.log('networkBytes: ', networkBytes);
-    const secondSHA = CryptoJS.SHA256(networkBytes).toString();
-    console.log('secondSha: ', secondSHA);
+    const secondSHA = CryptoJS.SHA256(networkBytes);
     const thirdSHA = CryptoJS.SHA256(secondSHA).toString();
-    console.log('thirdSha: ', thirdSHA);
     const checksum = thirdSHA.substring(0, 8);
-    console.log('checksum: ', checksum);
     const binaryAddress = networkBytes + checksum;
-    console.log('binaryAddress: ', binaryAddress);
+
+    const bytes = Buffer.from(binaryAddress, 'hex');
+    const btcAddress = bs58.encode(bytes);
+
+    console.log('This is the BTC address: ', btcAddress);
+
 }
+
+keys.forEach(key => getAddress(key.publicKey));
 
 
 
