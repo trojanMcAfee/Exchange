@@ -36,5 +36,5 @@ app.post('/send', (req, res) => {
 app.listen(port, () => {
   console.log(`Listening on port ${port}!`);
   console.log(keys);
-  console.log('The balances: ', balances);
+  // console.log('The balances: ', balances);
 });
