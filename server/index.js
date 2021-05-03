@@ -8,16 +8,16 @@ const port = 3042;
 app.use(cors());
 app.use(express.json());
 
-const { keys } = require('./keys');
+const { addressesAndKeys } = require('./keys');
 
 //Set up initial addresses with their balances
-const publicKeys = [];
-keys.forEach(key => publicKeys.push(key.publicKey));
+const addresses = [];
+addressesAndKeys.forEach(obj => addresses.push(obj.address));
 
 const balances = {};
 const initialBalances = [100, 50, 75];
 
-initialBalances.forEach((balance, i) => balances[publicKeys[i]] = balance);
+initialBalances.forEach((balance, i) => balances[addresses[i]] = balance);
 
 //Routes
 app.get('/balance/:address', (req, res) => {
@@ -35,6 +35,6 @@ app.post('/send', (req, res) => {
 
 app.listen(port, () => {
   console.log(`Listening on port ${port}!`);
-  console.log(keys);
+  console.log(addressesAndKeys);
   // console.log('The balances: ', balances);
 });

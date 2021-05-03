@@ -23,8 +23,8 @@ function signTx(privateKey, hashedTx) {
 }
 
 //Verify a transaction
-function verifyTx(hashedTx, signature, sender) {
-  const key = ec.keyFromPublic(sender, 'hex');
+function verifyTx(hashedTx, signature, privateKey) {
+  const key = ec.keyFromPrivate(privateKey, 'hex');
 
   return key.verify(hashedTx.toString(), signature);
 }
@@ -75,7 +75,7 @@ document.getElementById("transfer-amount").addEventListener('click', () => {
   const signature = signTx(privateKey, hashedTx);
 
   //Verify signature
-  if (!verifyTx(hashedTx, signature, sender)) {
+  if (!verifyTx(hashedTx, signature, privateKey)) {
     alert("You're not authorized to make this transaction");
     return;
   }

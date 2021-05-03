@@ -5,7 +5,9 @@ const bs58 = require('bs58');
 const ec = new EC('secp256k1');
 
 const keys = [];
-const btcAddresses = [];
+const addressesAndKeys = [];
+let addressAndPrivateKey = {};
+
 let key;
 for (let i = 0; i < 3; i++) {
     key = ec.genKeyPair();
@@ -18,8 +20,8 @@ for (let i = 0; i < 3; i++) {
 }
 
 
-function getAddress(publicKey) {
-
+function getAddress(keys) {
+    const { publicKey, privateKey } = keys;
     const y = publicKey.charAt(1);
     let publicX;
     if (y % 2 === 0 || y == 'a' || y == 'c' || y == 'e') {
@@ -39,14 +41,16 @@ function getAddress(publicKey) {
     const bytes = Buffer.from(binaryAddress, 'hex');
     const btcAddress = bs58.encode(bytes);
 
-    btcAddresses.push(btcAddress);
-
+    addressAndPrivateKey.address = btcAddress;
+    addressAndPrivateKey.privateKey = privateKey;
+    addressesAndKeys.push(addressAndPrivateKey);
+    addressAndPrivateKey = {};
 }
 
-keys.forEach(key => getAddress(key.publicKey));
+keys.forEach(key => getAddress(key));
 
 
 
-module.exports.keys = btcAddresses;
+module.exports.addressesAndKeys = addressesAndKeys;
 
 
