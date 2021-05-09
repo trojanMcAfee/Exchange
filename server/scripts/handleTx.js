@@ -1,13 +1,10 @@
-import Block from '../Block';
-import Blockchain from '../Blockchain';
+const Block = require('../Block');
 
 const EC = require('elliptic').ec;
 
 const ec = new EC('secp256k1');
 
-
-const blockchain = new Blockchain();
-
+const TARGET_DIFFICULTY = BigInt('0x00' + 'F'.repeat(62));
 
 //Sign a transaction
 function signTx(privateKey, hashedTx) {
@@ -28,8 +25,9 @@ function signTx(privateKey, hashedTx) {
   }
   
   //Adds to chain
-  function addBlockToChain(lastBlock, hashedTx) {
+  function addBlockToChain(lastBlock, hashedTx, blockchain) {
     if (lastBlock.isFull()) {
+      mine(lastBlock);
       const block = new Block();
       block.addTransaction(hashedTx);
       blockchain.addBlock(block);
@@ -38,10 +36,19 @@ function signTx(privateKey, hashedTx) {
     }
   }
 
+  function mine(block) {
+    let hash;
+    while(true) {
+      hash = block.toHash();
+      if (BigInt('0x' + hash) < TARGET_DIFFICULTY) break;
+      block.nonce++;
+    }
+    block.hash = hash;
+  }
+
   
   module.exports = {
       signTx,
       verifyTx,
-      addBlockToChain,
-      blockchain
+      addBlockToChain
   };

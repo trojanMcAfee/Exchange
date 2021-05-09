@@ -1,25 +1,22 @@
+const Blockchain = require('./Blockchain');
 const express = require('express');
 const app = express();
 const cors = require('cors');
 const port = 3042;
 
 const SHA256 = require('crypto-js/sha256');
-const { signTx, verifyTx, addBlockToChain, blockchain } = require('./scripts/handleTx');
+const { signTx, verifyTx, addBlockToChain } = require('./scripts/handleTx');
 
-// localhost can have cross origin errors
-// depending on the browser you use!
+const blockchain = new Blockchain();
+
 app.use(cors());
 app.use(express.json());
 
-const { addressesAndKeys } = require('./keys');
+const { addressesAndKeys, addresses } = require('./keys');
 
 //Set up initial addresses with their balances
-const addresses = [];
-addressesAndKeys.forEach(obj => addresses.push(obj.address));
-
 const balances = {};
 const initialBalances = [100, 50, 75];
-
 initialBalances.forEach((balance, i) => balances[addresses[i]] = balance);
 
 //Routes
@@ -38,23 +35,30 @@ app.post('/send', (req, res) => {
   const publicKey = addressesAndKeys.map(x => {
     if (sender === x.address) return x.publicKey
   });
+
   if (!verifyTx(hashedTx, signature, publicKey[0])) {
-    console.log("You're not authorized to make this transaction");
+    res.send({
+      message: "You're not authorized to make this transaction",
+      authorized: false
+    }).end();
     return;
   }
   //Adds to blockchain
   const lastBlock = blockchain.chain[blockchain.chain.length - 1];
-  addBlockToChain(lastBlock, hashedTx);
+  addBlockToChain(lastBlock, hashedTx, blockchain);
 
-  console.log('Transaction successful!');
-  blockchain.isValid() ? console.log('valid chain') : console.log('invalid chain');
-  console.log(blockchain);
-
+  const isValidChain = blockchain.isValid();
 
   balances[sender] -= amount;
   balances[recipient] = (balances[recipient] || 0) + +amount;
-  res.send({ balance: balances[sender] });
+  res.send({
+    balance: balances[sender],
+    authorized: true,
+    isValidChain,
+    blockchain
+  });
 });
+
 
 app.listen(port, () => {
   console.log(`Listening on port ${port}!`);

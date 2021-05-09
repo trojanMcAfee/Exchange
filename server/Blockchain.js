@@ -1,4 +1,4 @@
-import Block from './Block';
+const Block = require('./Block');
 
 class Blockchain {
     constructor() {
@@ -6,15 +6,15 @@ class Blockchain {
     }
 
     addBlock(block) {
-        block.previousHash = this.chain[this.chain.length - 1].toHash();
+        block.previousHash = this.chain[this.chain.length - 1].hash;
         this.chain.push(block);
     }
 
     isValid() {
         for (let i = 0; i < this.chain.length - 1; i++) {
-            let currentBlock = this.chain[i];
-            let nextBlock = this.chain[i + 1];
-            if (currentBlock.toHash().toString() !== nextBlock.toHash().toString()) {
+            let currentBlock = this.chain[i].previousHash;
+            let nextBlock = this.chain[i + 1].hash;
+            if (currentBlock !== nextBlock) {
                 return false;
             }
         }
@@ -23,4 +23,4 @@ class Blockchain {
 }
 
 
-export default Blockchain;
+module.exports = Blockchain;

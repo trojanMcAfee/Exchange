@@ -7,6 +7,7 @@ const ec = new EC('secp256k1');
 const keys = [];
 const addressesAndKeys = [];
 let addressAndKeys = {};
+const addresses = [];
 
 let key;
 for (let i = 0; i < 3; i++) {
@@ -42,6 +43,7 @@ function getAddress(keys) {
     const btcAddress = bs58.encode(bytes);
 
     addressAndKeys.address = btcAddress;
+    addresses.push(btcAddress);
     addressAndKeys.privateKey = privateKey;
     addressAndKeys.publicKey = publicKeyFull;
     addressesAndKeys.push(addressAndKeys);
@@ -51,7 +53,9 @@ function getAddress(keys) {
 keys.forEach(key => getAddress(key));
 
 
-
-module.exports.addressesAndKeys = addressesAndKeys;
+module.exports = {
+    addressesAndKeys,
+    addresses
+};
 
 
