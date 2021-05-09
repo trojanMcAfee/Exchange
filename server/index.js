@@ -1,4 +1,4 @@
-const Blockchain = require('./Blockchain');
+const Blockchain = require('./models/Blockchain');
 const express = require('express');
 const app = express();
 const cors = require('cors');
@@ -7,7 +7,8 @@ const port = 3042;
 const SHA256 = require('crypto-js/sha256');
 const { signTx, verifyTx, addBlockToChain } = require('./scripts/handleTx');
 
-const blockchain = new Blockchain();
+// const blockchain = new Blockchain();
+const { blockchain } = require('./db');
 
 app.use(cors());
 app.use(express.json());

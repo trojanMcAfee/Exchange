@@ -1,10 +1,12 @@
-const Block = require('../Block');
+const Block = require('../models/Block');
+const UTXO = require('../models/UTXO');
+const Transaction = require('../models/Transaction');
 
 const EC = require('elliptic').ec;
 
 const ec = new EC('secp256k1');
 
-const TARGET_DIFFICULTY = BigInt('0x00' + 'F'.repeat(62));
+const { TARGET_DIFFICULTY, miner, BLOCK_REWARD } = require('../config');
 
 //Sign a transaction
 function signTx(privateKey, hashedTx) {
@@ -27,8 +29,9 @@ function signTx(privateKey, hashedTx) {
   //Adds to chain
   function addBlockToChain(lastBlock, hashedTx, blockchain) {
     if (lastBlock.isFull()) {
-      mine(lastBlock);
-      const block = new Block();
+      const nextId = mine(lastBlock);
+      console.log(`Block #${lastBlock.id} was mined with hash ${lastBlock.hash}`);
+      const block = new Block(nextId);
       block.addTransaction(hashedTx);
       blockchain.addBlock(block);
     } else {
@@ -38,12 +41,19 @@ function signTx(privateKey, hashedTx) {
 
   function mine(block) {
     let hash;
+
+    const coinbaseUTXO = new UTXO(miner.ADDRESS, BLOCK_REWARD());
+    const coinbaseTX = new Transaction([], [coinbaseUTXO]);
+    block.addTransactionUTXO(coinbaseTX);
+    console.log(coinbaseTX);
+
     while(true) {
       hash = block.toHash();
       if (BigInt('0x' + hash) < TARGET_DIFFICULTY) break;
       block.nonce++;
     }
     block.hash = hash;
+    return block.id + 1;
   }
 
   

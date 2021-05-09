@@ -1,11 +1,18 @@
 const SHA256 = require('crypto-js/sha256');
+// const { merkleTree } = require('../db');
 
 class Block {
-    constructor() {
+    constructor(id) {
+        this.id = id;
         this.timestamp = Date.now();
         this.transactions = [];
+        this.utxos = [];
         this.limit = 3;
         this.nonce = 0;
+    }
+
+    addTransactionUTXO(tx) {
+        this.utxos.push(tx);
     }
 
     isFull() {
@@ -17,7 +24,10 @@ class Block {
     }
 
     toHash() {
-        return SHA256(this.timestamp + this.transactions + '' + this.nonce).toString();
+        return SHA256(this.timestamp + '' 
+            + JSON.stringify(this.transactions) + '' 
+            + this.nonce + '' 
+            + JSON.stringify(this.utxos)).toString();
     }
 }
 

@@ -1,5 +1,4 @@
 import "./index.scss";
-const { blockchain } = require('../server/scripts/handleTx');
 // const { addresses } = require('../server/keys');
 
 const server = "http://localhost:3042";
