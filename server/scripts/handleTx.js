@@ -2,7 +2,6 @@ import Block from '../Block';
 import Blockchain from '../Blockchain';
 
 const EC = require('elliptic').ec;
-// const SHA256 = require('crypto-js/sha256');
 
 const ec = new EC('secp256k1');
 
@@ -22,9 +21,9 @@ function signTx(privateKey, hashedTx) {
   }
   
   //Verify a transaction
-  function verifyTx(hashedTx, signature, privateKey) {
-    const key = ec.keyFromPrivate(privateKey, 'hex');
-  
+  function verifyTx(hashedTx, signature, publicKey) {
+    const key = ec.keyFromPublic(publicKey, 'hex');
+
     return key.verify(hashedTx.toString(), signature);
   }
   

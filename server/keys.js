@@ -6,28 +6,28 @@ const ec = new EC('secp256k1');
 
 const keys = [];
 const addressesAndKeys = [];
-let addressAndPrivateKey = {};
+let addressAndKeys = {};
 
 let key;
 for (let i = 0; i < 3; i++) {
     key = ec.genKeyPair();
     let objKeys = {
         privateKey: key.getPrivate().toString(16),
-        publicKey: key.getPublic().x.toString(16),
-        // publicKey: key.getPublic().encode('hex')
+        publicKeyX: key.getPublic().x.toString(16),
+        publicKeyFull: key.getPublic().encode('hex')
     };
     keys.push(objKeys);
 }
 
 
 function getAddress(keys) {
-    const { publicKey, privateKey } = keys;
-    const y = publicKey.charAt(1);
+    const { publicKeyX, privateKey, publicKeyFull } = keys;
+    const y = publicKeyX.charAt(1);
     let publicX;
     if (y % 2 === 0 || y == 'a' || y == 'c' || y == 'e') {
-        publicX = '02' + publicKey;
+        publicX = '02' + publicKeyX;
     } else {
-        publicX = '03' + publicKey
+        publicX = '03' + publicKeyX
     }
 
     const firstSHA = CryptoJS.SHA256(CryptoJS.enc.Hex.parse(publicX));
@@ -41,10 +41,11 @@ function getAddress(keys) {
     const bytes = Buffer.from(binaryAddress, 'hex');
     const btcAddress = bs58.encode(bytes);
 
-    addressAndPrivateKey.address = btcAddress;
-    addressAndPrivateKey.privateKey = privateKey;
-    addressesAndKeys.push(addressAndPrivateKey);
-    addressAndPrivateKey = {};
+    addressAndKeys.address = btcAddress;
+    addressAndKeys.privateKey = privateKey;
+    addressAndKeys.publicKey = publicKeyFull;
+    addressesAndKeys.push(addressAndKeys);
+    addressAndKeys = {};
 }
 
 keys.forEach(key => getAddress(key));
