@@ -1,15 +1,15 @@
 import "./index.scss";
-import Block from '../server/Block';
-import Blockchain from '../server/Blockchain';
+// import Block from '../server/Block';
+// import Blockchain from '../server/Blockchain';
 
-const EC = require('elliptic').ec;
-const SHA256 = require('crypto-js/sha256');
+// const EC = require('elliptic').ec;
+// const SHA256 = require('crypto-js/sha256');
 
-const ec = new EC('secp256k1');
+// const ec = new EC('secp256k1');
 
 const server = "http://localhost:3042";
 
-const blockchain = new Blockchain();
+// const blockchain = new Blockchain();
 
 //Sign a transaction
 function signTx(privateKey, hashedTx) {
@@ -69,23 +69,23 @@ document.getElementById("transfer-amount").addEventListener('click', () => {
     amount,
     to: recipient
   };
-  const hashedTx = SHA256(transaction);
+  // const hashedTx = SHA256(transaction);
   
   //Sign tx
-  const signature = signTx(privateKey, hashedTx);
+  // const signature = signTx(privateKey, hashedTx);
 
   //Verify signature
-  if (!verifyTx(hashedTx, signature, privateKey)) {
-    alert("You're not authorized to make this transaction");
-    return;
-  }
+  // if (!verifyTx(hashedTx, signature, privateKey)) {
+  //   alert("You're not authorized to make this transaction");
+  //   return;
+  // }
 
   //Adds to blockchain
-  const lastBlock = blockchain.chain[blockchain.chain.length - 1];
-  addBlockToChain(lastBlock, hashedTx);
+  // const lastBlock = blockchain.chain[blockchain.chain.length - 1];
+  // addBlockToChain(lastBlock, hashedTx);
 
   const body = JSON.stringify({
-    sender, amount, recipient
+    sender, amount, recipient, transaction, privateKey
   });
 
 

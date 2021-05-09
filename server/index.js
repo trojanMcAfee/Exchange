@@ -3,6 +3,9 @@ const app = express();
 const cors = require('cors');
 const port = 3042;
 
+const SHA256 = require('crypto-js/sha256');
+const { signTx, verifyTx, addBlockToChain, blockchain } = require('./scripts/handleTx');
+
 // localhost can have cross origin errors
 // depending on the browser you use!
 app.use(cors());
@@ -27,7 +30,24 @@ app.get('/balance/:address', (req, res) => {
 });
 
 app.post('/send', (req, res) => {
-  const {sender, recipient, amount} = req.body;
+  const { sender, recipient, amount, transaction, privateKey } = req.body;
+
+  const hashedTx = SHA256(transaction);
+  
+  //Sign tx
+  const signature = signTx(privateKey, hashedTx);
+
+  //Verify signature
+  if (!verifyTx(hashedTx, signature, privateKey)) {
+    alert("You're not authorized to make this transaction");
+    return;
+  }
+
+  //Adds to blockchain
+  const lastBlock = blockchain.chain[blockchain.chain.length - 1];
+  addBlockToChain(lastBlock, hashedTx);
+
+
   balances[sender] -= amount;
   balances[recipient] = (balances[recipient] || 0) + +amount;
   res.send({ balance: balances[sender] });
@@ -36,5 +56,4 @@ app.post('/send', (req, res) => {
 app.listen(port, () => {
   console.log(`Listening on port ${port}!`);
   console.log(addressesAndKeys);
-  // console.log('The balances: ', balances);
 });
