@@ -29,7 +29,7 @@ app.get('/balance/:address', (req, res) => {
 
 app.post('/send', (req, res) => {
   const { sender, recipient, amount, transaction, inputted_privateKey } = req.body;
-  const hashedTx = SHA256(transaction);
+  const hashedTx = SHA256(transaction + Date.now());
   //Sign tx
   const signature = signTx(inputted_privateKey, hashedTx);
   //Verify signature
