@@ -1,4 +1,3 @@
-const Blockchain = require('./models/Blockchain');
 const express = require('express');
 const app = express();
 const cors = require('cors');
@@ -7,8 +6,7 @@ const port = 3042;
 const SHA256 = require('crypto-js/sha256');
 const { signTx, verifyTx, addBlockToChain } = require('./scripts/handleTx');
 
-// const blockchain = new Blockchain();
-const { blockchain } = require('./db');
+const { blockchain, merkleTree } = require('./db');
 
 app.use(cors());
 app.use(express.json());
@@ -44,10 +42,11 @@ app.post('/send', (req, res) => {
     }).end();
     return;
   }
-  //Adds to blockchain
+  //Adds to blockchain and Merkle Tree
   const lastBlock = blockchain.chain[blockchain.chain.length - 1];
+  merkleTree.addTransaction(hashedTx.toString());
   addBlockToChain(lastBlock, hashedTx, blockchain);
-
+  console.log(merkleTree);
   const isValidChain = blockchain.isValid();
 
   balances[sender] -= amount;

@@ -1,8 +1,12 @@
 const SHA256 = require('crypto-js/sha256');
 
 class MerkleTree {
-    constructor(transactions) {
-      this.transactions = transactions;
+    constructor() {
+      this.transactions = [];
+    }
+
+    addTransaction(tx) {
+      this.transactions.push(tx);
     }
 
     getProof(index, layer = this.transactions, proof = []) {

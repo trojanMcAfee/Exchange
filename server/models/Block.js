@@ -1,5 +1,4 @@
 const SHA256 = require('crypto-js/sha256');
-// const { merkleTree } = require('../db');
 
 class Block {
     constructor(id) {
