@@ -1,23 +1,26 @@
-import logo from './logo.svg';
-import './App.css';
+import './App.scss';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div class="components">
+      <div class="wallet">
+        <h1> Your Wallet </h1>
+        <input type="text" id="exchange-address" placeholder="Your Address" />
+        {/* <select id="exchange-address"></select> */}
+        <div id="balance">
+          0
+        </div>
+      </div>
+
+      <div class="send">
+        <h1> Send Amount </h1>
+        <input type="text" id="send-amount" placeholder="Send Amount" />
+        <input type="text" id="private-key" placeholder="Private Key" />
+        <input type="text" id="recipient" placeholder="Recipient" />
+        <div class="button" id="transfer-amount">
+          Transfer Amount
+        </div>
+      </div>
     </div>
   );
 }
