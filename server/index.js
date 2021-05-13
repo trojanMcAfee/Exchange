@@ -46,7 +46,7 @@ app.post('/send', (req, res) => {
   const lastBlock = blockchain.chain[blockchain.chain.length - 1];
   merkleTree.addTransaction(hashedTx.toString());
   addBlockToChain(lastBlock, hashedTx, blockchain);
-  console.log(merkleTree);
+  
   const isValidChain = blockchain.isValid();
 
   balances[sender] -= amount;
