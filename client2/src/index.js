@@ -8,7 +8,7 @@ ReactDOM.render(
   <React.StrictMode>
     <App />
   </React.StrictMode>,
-  document.getElementsByTagName('body')[0]
+  document.getElementsByTagName('root') //not accepting 'root' but 'body'
 );
 
 // If you want to start measuring performance in your app, pass a function
