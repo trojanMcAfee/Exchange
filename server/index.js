@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express();
 const cors = require('cors');
-const port = 3042;
+const port = 3042; //3042
 
 const SHA256 = require('crypto-js/sha256');
 const { signTx, verifyTx, addBlockToChain } = require('./scripts/handleTx');
@@ -59,6 +59,9 @@ app.post('/send', (req, res) => {
   });
 });
 
+
+//****** */
+// app.set('port', process.env.PORT || 5000);
 
 app.listen(port, () => {
   console.log(`Listening on port ${port}!`);

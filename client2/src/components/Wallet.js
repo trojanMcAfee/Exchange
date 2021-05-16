@@ -1,14 +1,14 @@
 import React, { useContext } from 'react';
-import Context from '../Context';
+import { Context } from '../Context';
 
 
 function Wallet() {
-    // const { ids, placeholders } = useContext(Context);
+    const { actions } = useContext(Context);
 
     return (
         <div className="wallet">
             <h1> Your Wallet </h1>
-            <input type="text" id="exchange-address" placeholder="Your Address" />
+            <input type="text" id='exchange-address' placeholder='Your address' onChange={(e) => actions.getValue(e, 'exchange-address')} />
             {/* <select id="exchange-address"></select> */}
             <div id="balance">
             0

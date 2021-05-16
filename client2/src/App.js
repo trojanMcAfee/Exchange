@@ -5,9 +5,9 @@ import Transfer from './components/Transfer';
 function App() {
   return (
     <div className="components">
-      <Wallet id='wallet'/>
-
-      <Transfer id='transfer'/>
+      <Wallet />
+      <Transfer />
+      
     </div>
   );
 }
