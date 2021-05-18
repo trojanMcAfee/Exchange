@@ -4,9 +4,10 @@ const Transaction = require('../models/Transaction');
 
 const EC = require('elliptic').ec;
 
+
 const ec = new EC('secp256k1');
 
-const { TARGET_DIFFICULTY, miner, BLOCK_REWARD } = require('../config');
+const { TARGET_DIFFICULTY, miner, BLOCK_REWARD, provider } = require('../config');
 
 //Sign a transaction
 function signTx(privateKey, hashedTx) {
@@ -27,7 +28,12 @@ function signTx(privateKey, hashedTx) {
   }
   
   //Adds to chain
-  function addBlockToChain(lastBlock, hashedTx, blockchain) {
+  async function addBlockToChain(lastBlock, hashedTx, blockchain) {
+
+    const blockNum = await provider.getBlockNumber();
+    const block = await provider.getBlock(blockNum);
+    const lastBlockHash = block.hash; //mix the hash of the last block with the hash of my block
+
     if (lastBlock.isFull()) {
       const nextId = mine(lastBlock);
       console.log(`Block #${lastBlock.id} was mined with hash ${lastBlock.hash}`);
