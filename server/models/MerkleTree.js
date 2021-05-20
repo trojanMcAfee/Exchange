@@ -2,14 +2,14 @@ const SHA256 = require('crypto-js/sha256');
 
 class MerkleTree {
     constructor() {
-      this.transactions = [];
+      this.blockHashes = [];
     }
 
-    addTransaction(tx) {
-      this.transactions.push(tx);
+    addHashToTree(tx) {
+      this.blockHashes.push(tx);
     }
 
-    getProof(index, layer = this.transactions, proof = []) {
+    getProof(index, layer = this.blockHashes, proof = []) {
       const newLayer = [];
       for (let i = 0; i < layer.length; i += 2) {
         let left = layer[i];
@@ -41,7 +41,7 @@ class MerkleTree {
       
     }
 
-    getRoot(layer = this.transactions) {
+    getRoot(layer = this.blockHashes) {
       if (layer.length === 1) return layer[0];
       const newLayer = [];
 

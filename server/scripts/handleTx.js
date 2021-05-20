@@ -1,6 +1,7 @@
 const Block = require('../models/Block');
 const UTXO = require('../models/UTXO');
 const Transaction = require('../models/Transaction');
+const SHA256 = require('crypto-js/sha256');
 
 const EC = require('elliptic').ec;
 
@@ -8,6 +9,7 @@ const EC = require('elliptic').ec;
 const ec = new EC('secp256k1');
 
 const { TARGET_DIFFICULTY, miner, BLOCK_REWARD, provider } = require('../config');
+const { merkleTree, blockchain } = require('../db');
 
 //Sign a transaction
 function signTx(privateKey, hashedTx) {
@@ -26,17 +28,38 @@ function signTx(privateKey, hashedTx) {
 
     return key.verify(hashedTx.toString(), signature);
   }
+
+  //Gets hash from last Ropstein block
+  let previousRopsteinHash;
+  let myBlockCount = 0;
+
+  async function mineRopsteinBlock(startMining = true) {
+    const blockNum = await provider.getBlockNumber();
+    const block = await provider.getBlock(blockNum);
+    const hash = block.hash;
+
+    if (startMining === false) {
+      return hash;
+    } else if (startMining && previousRopsteinHash !== hash) {
+      previousRopsteinHash = hash;
+      merkleTree.addHashToTree(hash);
+      console.log(`Block #${myBlockCount}'s hash from Ropstein was added to the tree: `, merkleTree.blockHashes[merkleTree.blockHashes.length - 1]);
+      myBlockCount++;
+      blockchain.addBlock(hash); //Can cause interference with blockchain.addBlock()
+    }
+  }
   
   //Adds to chain
   async function addBlockToChain(lastBlock, hashedTx, blockchain) {
-
-    const blockNum = await provider.getBlockNumber();
-    const block = await provider.getBlock(blockNum);
-    const lastBlockHash = block.hash; //mix the hash of the last block with the hash of my block
-
     if (lastBlock.isFull()) {
-      const nextId = mine(lastBlock);
-      console.log(`Block #${lastBlock.id} was mined with hash ${lastBlock.hash}`);
+      
+      const { id: { nextId }, hash } = mineMyBlock(lastBlock);
+      const mixedHash = SHA256(await mineRopsteinBlock(false) + hash).toString();
+      lastBlock.hash = mixedHash;
+      merkleTree.addHashToTree(mixedHash);
+
+      console.log(`Block #${myBlockCount} was mined with mixed hash ${mixedHash}`);
+      myBlockCount++;
       const block = new Block(nextId);
       block.addTransaction(hashedTx);
       blockchain.addBlock(block);
@@ -45,7 +68,7 @@ function signTx(privateKey, hashedTx) {
     }
   }
 
-  function mine(block) {
+  function mineMyBlock(block) {
     let hash;
 
     const coinbaseUTXO = new UTXO(miner.ADDRESS, BLOCK_REWARD());
@@ -58,13 +81,17 @@ function signTx(privateKey, hashedTx) {
       if (BigInt('0x' + hash) < TARGET_DIFFICULTY) break;
       block.nonce++;
     }
-    block.hash = hash;
-    return block.id + 1;
+    
+    return {
+      id: block.id + 1,
+      hash
+    }
   }
 
   
   module.exports = {
       signTx,
       verifyTx,
-      addBlockToChain
+      addBlockToChain,
+      mineRopsteinBlock
   };
