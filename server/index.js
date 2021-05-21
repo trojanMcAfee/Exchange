@@ -18,10 +18,10 @@ const balances = {};
 const initialBalances = [100, 50, 75];
 initialBalances.forEach((balance, i) => balances[addresses[i]] = balance);
 
-//Start getting hashes from Ropstein
+//Start getting hashes from Mainnet
 setInterval(() => {
   mineMainnetBlock();
-  console.log('Looking for a new block hash...');
+  console.log('Looking for a new block hash in Mainnet...');
 }, 12000);
 
 //Routes
@@ -56,7 +56,7 @@ app.post('/send', async (req, res) => {
       break;
     }
   }
-  // const lastBlock = blockchain.chain.length[blockchain.chain.length - 1];
+  lastBlock = !lastBlock ? blockchain.chain[blockchain.chain.length - 1] : lastBlock;
   
   await addBlockToChain(lastBlock, hashedTx, blockchain);
   
@@ -73,7 +73,6 @@ app.post('/send', async (req, res) => {
 });
 
 
-//****** */
 // app.set('port', process.env.PORT || 5000);
 
 app.listen(port, () => {

@@ -5,8 +5,8 @@ class MerkleTree {
       this.blockHashes = [];
     }
 
-    addHashToTree(tx) {
-      this.blockHashes.push(tx);
+    addHashToTree(hash) {
+      this.blockHashes.push(hash);
     }
 
     getProof(index, layer = this.blockHashes, proof = []) {
@@ -48,7 +48,7 @@ class MerkleTree {
       for (let i = 0; i < layer.length; i += 2) {
         let left = layer[i];
         let right = layer[i + 1];
-        right ? newLayer.push(SHA256(left, right)) : newLayer.push(left);
+        right ? newLayer.push(SHA256(left + right).toString()) : newLayer.push(left);
       }
 
       return this.getRoot(newLayer); 

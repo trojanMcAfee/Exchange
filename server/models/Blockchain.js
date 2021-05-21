@@ -3,13 +3,13 @@ const MerkleTree = require('./MerkleTree');
 
 class Blockchain {
     constructor() {
-        this.chain = [new Block(0)];
+        this.chain = [];
         // this.merkleRoot = this.merkleRoot;
     }
 
     addBlock(block) {
         // if (typeof block === 'object') {
-            block.previousHash = this.chain[this.chain.length - 1].hash;
+            block.previousHash = this.chain.length !== 0 ? this.chain[this.chain.length - 1].hash : null;
             // block.previousHash = typeof (this.chain[this.chain.length - 1]) === 'object' ? this.chain[this.chain.length - 1].hash : this.chain[this.chain.length - 1];
         // } 
         this.chain.push(block);

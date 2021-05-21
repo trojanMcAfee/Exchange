@@ -4,6 +4,7 @@ class Block {
     constructor(id, mainnetBlock = false) {
         this.id = id;
         this.timestamp = Date.now();
+        this.merkleRoot = null;
         if (!mainnetBlock) {
             this.transactions = [];
             this.utxos = [];

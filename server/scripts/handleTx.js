@@ -44,29 +44,39 @@ function signTx(privateKey, hashedTx) {
       previousRopsteinHash = hash;
       merkleTree.addHashToTree(hash);
       console.log(`Block #${myBlockCount}'s hash from Mainnet was added to the tree: `, merkleTree.blockHashes[merkleTree.blockHashes.length - 1]);
-      myBlockCount++;
       const block = new Block(myBlockCount, true);
       block.hash = hash;
+      block.merkleRoot = merkleTree.getRoot();
       blockchain.addBlock(block);
-      // blockchain.addBlock(hash); //Can cause interference with blockchain.addBlock()
+      myBlockCount++;
     }
   }
   
   //Adds to chain
   async function addBlockToChain(lastBlock, hashedTx, blockchain) {
-    if (lastBlock.isFull()) {
-      const hash = mineMyBlock(lastBlock);
-      const mixedHash = SHA256(await mineMainnetBlock(false) + hash).toString();
-      lastBlock.hash = mixedHash;
-      merkleTree.addHashToTree(mixedHash);
+    if (lastBlock.limit) {
+      if (lastBlock.isFull()) {
+        const hash = mineMyBlock(lastBlock);
+        const mixedHash = SHA256(await mineMainnetBlock(false) + hash).toString();
+        lastBlock.hash = mixedHash;
+        merkleTree.addHashToTree(mixedHash);
+        lastBlock.merkleRoot = merkleTree.getRoot();
 
-      console.log(`Block #${myBlockCount} was mined with mixed hash ${mixedHash}`);
-      myBlockCount++;
-      const block = new Block(myBlockCount); // modified it from nextId. If it works, delete nextId and id from mineMyBlock
+        console.log(`Block #${myBlockCount} was mined with mixed hash ${mixedHash}`);
+        myBlockCount++;
+        const block = new Block(myBlockCount);
+        // block.merkleRoot = merkleTree.getRoot();
+        block.addTransaction(hashedTx);
+        blockchain.addBlock(block);
+      } else {
+        lastBlock.addTransaction(hashedTx);
+      }
+    } else {
+      const block = new Block(myBlockCount); //the blockCount (id) doesn't keep updated. work on this 
+      // block.merkleRoot = merkleTree.getRoot();
       block.addTransaction(hashedTx);
       blockchain.addBlock(block);
-    } else {
-      lastBlock.addTransaction(hashedTx);
+      myBlockCount++;
     }
   }
 
@@ -83,6 +93,7 @@ function signTx(privateKey, hashedTx) {
       if (BigInt('0x' + hash) < TARGET_DIFFICULTY) break;
       block.nonce++;
     }
+    // merkleTree.addHashToTree
     
     return hash;
   }
