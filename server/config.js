@@ -1,4 +1,6 @@
 const SHA256 = require('crypto-js/sha256');
+const { providers: { JsonRpcProvider } } = require('ethers');
+
 
 module.exports = {
     TARGET_DIFFICULTY: BigInt('0x00' + 'F'.repeat(62)),
@@ -9,5 +11,6 @@ module.exports = {
     },
     BLOCK_REWARD: function() {
         return SHA256('The new ETH' + (Math.floor(Math.random() * 100) + 1)).toString();
-    }
+    },
+    provider: new JsonRpcProvider('https://mainnet.infura.io/v3/ead605dd65704007ae941fffb7c1d1a7')
 };

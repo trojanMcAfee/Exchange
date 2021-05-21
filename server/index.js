@@ -1,10 +1,10 @@
 const express = require('express');
 const app = express();
 const cors = require('cors');
-const port = 3042;
+const port = 3042; //3042
 
 const SHA256 = require('crypto-js/sha256');
-const { signTx, verifyTx, addBlockToChain } = require('./scripts/handleTx');
+const { signTx, verifyTx, addBlockToChain, mineMainnetBlock } = require('./scripts/handleTx');
 
 const { blockchain, merkleTree } = require('./db');
 
@@ -18,6 +18,12 @@ const balances = {};
 const initialBalances = [100, 50, 75];
 initialBalances.forEach((balance, i) => balances[addresses[i]] = balance);
 
+//Start getting hashes from Ropstein
+setInterval(() => {
+  mineMainnetBlock();
+  console.log('Looking for a new block hash...');
+}, 12000);
+
 //Routes
 app.get('/balance/:address', (req, res) => {
   const {address} = req.params;
@@ -25,7 +31,7 @@ app.get('/balance/:address', (req, res) => {
   res.send({ balance });
 });
 
-app.post('/send', (req, res) => {
+app.post('/send', async (req, res) => {
   const { sender, recipient, amount, transaction, inputted_privateKey } = req.body;
   const hashedTx = SHA256(transaction + Date.now());
   //Sign tx
@@ -42,11 +48,18 @@ app.post('/send', (req, res) => {
     }).end();
     return;
   }
-  //Adds to blockchain and Merkle Tree
-  const lastBlock = blockchain.chain[blockchain.chain.length - 1];
-  merkleTree.addTransaction(hashedTx.toString());
-  addBlockToChain(lastBlock, hashedTx, blockchain);
-  console.log(merkleTree);
+  //Gets the last block on the chain that was created by my transactions
+  let lastBlock; 
+  for (let i = blockchain.chain.length - 1; i >= 0; i--) {
+    if (blockchain.chain[i].limit) {
+      lastBlock = blockchain.chain[i];
+      break;
+    }
+  }
+  // const lastBlock = blockchain.chain.length[blockchain.chain.length - 1];
+  
+  await addBlockToChain(lastBlock, hashedTx, blockchain);
+  
   const isValidChain = blockchain.isValid();
 
   balances[sender] -= amount;
@@ -60,7 +73,12 @@ app.post('/send', (req, res) => {
 });
 
 
+//****** */
+// app.set('port', process.env.PORT || 5000);
+
 app.listen(port, () => {
   console.log(`Listening on port ${port}!`);
   console.log(addressesAndKeys);
 });
+
+
