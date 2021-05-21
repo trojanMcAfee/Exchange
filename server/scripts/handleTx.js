@@ -29,11 +29,11 @@ function signTx(privateKey, hashedTx) {
     return key.verify(hashedTx.toString(), signature);
   }
 
-  //Gets hash from last Ropstein block
+  //Gets hash from last Mainnet block
   let previousRopsteinHash;
   let myBlockCount = 0;
 
-  async function mineRopsteinBlock(startMining = true) {
+  async function mineMainnetBlock(startMining = true) {
     const blockNum = await provider.getBlockNumber();
     const block = await provider.getBlock(blockNum);
     const hash = block.hash;
@@ -43,24 +43,26 @@ function signTx(privateKey, hashedTx) {
     } else if (startMining && previousRopsteinHash !== hash) {
       previousRopsteinHash = hash;
       merkleTree.addHashToTree(hash);
-      console.log(`Block #${myBlockCount}'s hash from Ropstein was added to the tree: `, merkleTree.blockHashes[merkleTree.blockHashes.length - 1]);
+      console.log(`Block #${myBlockCount}'s hash from Mainnet was added to the tree: `, merkleTree.blockHashes[merkleTree.blockHashes.length - 1]);
       myBlockCount++;
-      blockchain.addBlock(hash); //Can cause interference with blockchain.addBlock()
+      const block = new Block(myBlockCount, true);
+      block.hash = hash;
+      blockchain.addBlock(block);
+      // blockchain.addBlock(hash); //Can cause interference with blockchain.addBlock()
     }
   }
   
   //Adds to chain
   async function addBlockToChain(lastBlock, hashedTx, blockchain) {
     if (lastBlock.isFull()) {
-      
-      const { id: { nextId }, hash } = mineMyBlock(lastBlock);
-      const mixedHash = SHA256(await mineRopsteinBlock(false) + hash).toString();
+      const hash = mineMyBlock(lastBlock);
+      const mixedHash = SHA256(await mineMainnetBlock(false) + hash).toString();
       lastBlock.hash = mixedHash;
       merkleTree.addHashToTree(mixedHash);
 
       console.log(`Block #${myBlockCount} was mined with mixed hash ${mixedHash}`);
       myBlockCount++;
-      const block = new Block(nextId);
+      const block = new Block(myBlockCount); // modified it from nextId. If it works, delete nextId and id from mineMyBlock
       block.addTransaction(hashedTx);
       blockchain.addBlock(block);
     } else {
@@ -82,10 +84,7 @@ function signTx(privateKey, hashedTx) {
       block.nonce++;
     }
     
-    return {
-      id: block.id + 1,
-      hash
-    }
+    return hash;
   }
 
   
@@ -93,5 +92,5 @@ function signTx(privateKey, hashedTx) {
       signTx,
       verifyTx,
       addBlockToChain,
-      mineRopsteinBlock
+      mineMainnetBlock
   };

@@ -1,13 +1,15 @@
 const SHA256 = require('crypto-js/sha256');
 
 class Block {
-    constructor(id) {
+    constructor(id, mainnetBlock = false) {
         this.id = id;
         this.timestamp = Date.now();
-        this.transactions = [];
-        this.utxos = [];
-        this.limit = 3;
-        this.nonce = 0;
+        if (!mainnetBlock) {
+            this.transactions = [];
+            this.utxos = [];
+            this.limit = 3;
+            this.nonce = 0;
+        }
     }
 
     addTransactionUTXO(tx) {

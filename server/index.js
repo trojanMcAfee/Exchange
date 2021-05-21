@@ -4,7 +4,7 @@ const cors = require('cors');
 const port = 3042; //3042
 
 const SHA256 = require('crypto-js/sha256');
-const { signTx, verifyTx, addBlockToChain, mineRopsteinBlock } = require('./scripts/handleTx');
+const { signTx, verifyTx, addBlockToChain, mineMainnetBlock } = require('./scripts/handleTx');
 
 const { blockchain, merkleTree } = require('./db');
 
@@ -20,8 +20,9 @@ initialBalances.forEach((balance, i) => balances[addresses[i]] = balance);
 
 //Start getting hashes from Ropstein
 setInterval(() => {
-  mineRopsteinBlock();
-}, 15000);
+  mineMainnetBlock();
+  console.log('Looking for a new block hash...');
+}, 12000);
 
 //Routes
 app.get('/balance/:address', (req, res) => {
@@ -47,15 +48,16 @@ app.post('/send', async (req, res) => {
     }).end();
     return;
   }
-  //Adds to blockchain and Merkle Tree
-  let lastBlock; //make the has from ropstein an object and add the previousHash
-  for (let i = 0; i < blockchain.chain.length; i++) {
-    if (typeof blockchain.chain[i] !== 'string') {
+  //Gets the last block on the chain that was created by my transactions
+  let lastBlock; 
+  for (let i = blockchain.chain.length - 1; i >= 0; i--) {
+    if (blockchain.chain[i].limit) {
       lastBlock = blockchain.chain[i];
       break;
     }
   }
-  console.log('lasBlock: ', lastBlock);
+  // const lastBlock = blockchain.chain.length[blockchain.chain.length - 1];
+  
   await addBlockToChain(lastBlock, hashedTx, blockchain);
   
   const isValidChain = blockchain.isValid();
